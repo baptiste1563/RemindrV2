@@ -15,19 +15,19 @@ export default function Component() {
       
         return (
           <>
-                <header>
-                  <a href="../">ReminDR</a>
-                  <div id="connect">
-                    <button onClick={() => signOut()}>Sign out</button>
-                    <img id='pp' src={session.user.image} title={session.user.name}></img>
-                  </div>
-                </header>
-    
+            <header>
+              <a href="../">ReminDR</a>
+              <div id="connect">
+                <button onClick={() => signOut()}>Sign out</button>
+                <img id='pp' src={session.user.image} title={session.user.name}></img>
+              </div>
+            </header>
+  
             <div id='content'>
-    
-             
+              <div id='lestitre'>
+                <h1 id='titre'>Remindr</h1>
+              </div>
             </div>
-    
           </>
         )
       }
@@ -42,8 +42,7 @@ export default function Component() {
           </header>
           <div id='content'>
             <div id='lestitre'>
-              <h1 id='titre'>Bienvenue sur Remindr</h1>
-              <h3 id='soustitre'>Votre gestionnaire de rappel pour tout vos projet de groupe</h3>
+              <h1 id='titre'>Remindr</h1>
             </div>
           </div>
         </>
