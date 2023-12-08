@@ -44,6 +44,7 @@ model User {
   image         String?
   accounts      Account[]
   sessions      Session[]
+  group         Group[]
 }
 
 model VerificationToken {
@@ -52,4 +53,21 @@ model VerificationToken {
   expires    DateTime
 
   @@unique([identifier, token])
+}
+
+model Group {
+  id           String @id @default(cuid())
+  name         String? 
+  desc         String?
+  users        User[]
+  rappel       Rappel[]
+}
+
+model Rappel {
+  id           String @id @default(cuid())
+  id_group     String
+  name         String? 
+  desc         String?
+
+  group        Group @relation(fields: [id_group],references: [id])
 }
