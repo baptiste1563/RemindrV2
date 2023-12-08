@@ -57,7 +57,7 @@ model VerificationToken {
 
 model Group {
   id           String @id @default(cuid())
-  name         String? 
+  name         String @unique 
   desc         String?
   users        User[]
   rappel       Rappel[]
