@@ -1,13 +1,16 @@
 import { PrismaClient } from "@prisma/client";
-import { getSession } from 'next-auth/react';
+import { getServerSession } from "next-auth"
+import { authOptions } from "../auth/[...nextauth]"
 
 
 const prisma = new PrismaClient();
 
 export default async function get_group(req, res) {
 
-    const session = getSession({req});
+    const session = await getServerSession(req,res, authOptions);
 
+    console.log(session);
+    
     if (!session) {
         return res.status(401).json({ message: 'Not sign In.'});
       }

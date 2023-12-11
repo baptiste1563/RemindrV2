@@ -1,9 +1,5 @@
-import Head from 'next/head'
-import Image from 'next/image'
-import { Inter } from 'next/font/google'
 import { useSession, signIn, signOut } from "next-auth/react"
 import React from 'react'
-import { useState } from 'react'
 
 
 
@@ -11,7 +7,9 @@ import { useState } from 'react'
 export default function Page({list_group}) {
     const { data: session } = useSession()
 
+
     if (session) {
+      console.log(list_group)
       
         return (
           <>
