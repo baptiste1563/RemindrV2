@@ -7,6 +7,15 @@ const prisma = new PrismaClient()
 
 export const authOptions = {
   adapter : PrismaAdapter(prisma),
+  callbacks: {
+    session : ({session, user}) => ({
+      ...session,
+      user: {
+        ...session.user,
+        id: user.id
+      }
+    })  
+  },
   // Configure one or more authentication providers
   providers: [
     GithubProvider({

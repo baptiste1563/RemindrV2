@@ -1,18 +1,51 @@
 import { useSession, signIn, signOut } from "next-auth/react"
 import React from 'react'
+import { getServerSession } from "next-auth/next"
+import { authOptions } from "./api/auth/[...nextauth]"
+const { PrismaClient } = require('@prisma/client')
+import { useState } from 'react';
+import { useRouter } from 'next/router';
+
+const prisma = new PrismaClient();
+
 
 
 
 
 export default function Page({list_group}) {
-    const { data: session } = useSession()
+  const { data: session } = useSession()
+  const router = useRouter();
 
+  //input value for add group
+  const [inputValueName, setInputValueName] = useState('');
+  const [inputValueDesc, setInputValueDesc] = useState('');
+  
 
-    if (session) {
-      console.log(list_group)
-      
-        return (
-          <>
+  const handleInputChangeName = (event) => {
+    setInputValueName(event.target.value);
+  };
+
+  const handleInputChangeDesc = (event) => {
+    setInputValueDesc(event.target.value);
+  };
+
+  const handleButtonAdd_group = async () => {
+
+    const res = await fetch('/api/group/add_group', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name : inputValueName, desc : inputValueDesc}),
+    });
+
+    router.reload();
+  };
+
+  
+  
+  if (session) {
+    console.log(list_group)
+    return (
+      <>
 
             <header>
               <a href="../">ReminDR</a>
@@ -27,7 +60,18 @@ export default function Page({list_group}) {
                 <h1 id='titre'>Remindr</h1>
               </div>
 
+              <div id="group_create">
+                <h1>Creation de groupe</h1>
+                <form action="/api/group/create" method="post">
+                  <input type="text" value={inputValueName} onChange={handleInputChangeName} placeholder="Nom du groupe" required/>
+                  <input type="text" value={inputValueDesc} onChange={handleInputChangeDesc} placeholder="Description" required/>
+                </form>
+                <button onClick={handleButtonAdd_group}>Créer Groupe</button>
+
+              </div>
+
               <div id="group_list">
+                <h1>Liste des groupes</h1>
               {
                   list_group.map((item) => {
                     return (
@@ -54,21 +98,28 @@ export default function Page({list_group}) {
           <div id='content'>
             <div id='lestitre'>
               <h1 id='titre'>Remindr</h1>
+              <h2>Va te connecter</h2>
             </div>
           </div>
         </>
       )
 }
+    
+    
+    
+export async function getServerSideProps(context) {
 
+  const session = await getServerSession(context.req, context.res, authOptions);
 
-
-export async function getServerSideProps() {
-  const res = await fetch('http://localhost:3000/api/group/', {
-    method: 'GET',
-    headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+  if (session == null) {
+    return { props: { list_group: null }}
+  }
+  const current_user = await prisma.user.findUnique({ 
+    where: { email: session.user.email }, 
+    include: { group: true }
   });
-  const list_group = await res.json()
-  return { props: { list_group }}
+
+  return { props: { list_group: current_user.group }}
 }
 
 
