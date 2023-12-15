@@ -10,6 +10,20 @@ const prisma = new PrismaClient();
 
 
 
+export async function getServerSideProps(context) {
+
+  const session = await getServerSession(context.req, context.res, authOptions);
+  
+  if (session == null) {
+    return { props: { list_group: null }}
+  }
+  const current_user = await prisma.user.findUnique({ 
+    where: { email: session.user.email }, 
+    include: { group: true }
+  });
+  
+  return { props: { list_group: current_user.group }}
+}
 
 
 export default function Page({list_group}) {
@@ -56,28 +70,35 @@ export default function Page({list_group}) {
             </header>
   
             <div id='content'>
+
               <div id='lestitre'>
-                <h1 id='titre'>Remindr</h1>
+                <h1 id='titre'>Bon retour {session.user.name} sur Remindr</h1>
+
+
+                <div id="group_create">
+                  <h1>Créer un nouveau groupe</h1>
+                  <form action="/api/group/create" method="post">
+                    <input type="text" value={inputValueName} onChange={handleInputChangeName} placeholder="Nom du groupe" required/>
+                    <input type="text" value={inputValueDesc} onChange={handleInputChangeDesc} placeholder="Description" required/>
+                    <button onClick={handleButtonAdd_group}>+</button>
+                  </form>
+
+                </div>
+
+                <h1>Liste de vos groupes : </h1>
               </div>
 
-              <div id="group_create">
-                <h1>Creation de groupe</h1>
-                <form action="/api/group/create" method="post">
-                  <input type="text" value={inputValueName} onChange={handleInputChangeName} placeholder="Nom du groupe" required/>
-                  <input type="text" value={inputValueDesc} onChange={handleInputChangeDesc} placeholder="Description" required/>
-                </form>
-                <button onClick={handleButtonAdd_group}>Créer Groupe</button>
-
-              </div>
 
               <div id="group_list">
-                <h1>Liste des groupes</h1>
               {
                   list_group.map((item) => {
                     return (
-                      <div class="group_card">
-                        <a href={"/group/" + item.id}>{item.name}</a>
-                      </div>
+                      <a href={"/group/" + item.id}>
+                        <div class="group_card">
+                          <h1>{item.name}</h1>
+                          <p>{item.desc}</p>
+                        </div>
+                      </a>
                     )})
               }
               </div>
@@ -98,8 +119,12 @@ export default function Page({list_group}) {
           <div id='content'>
             <div id='lestitre'>
               <h1 id='titre'>Remindr</h1>
-              <h2>Va te connecter</h2>
+              <h2>Veuiller vous connecter</h2>
             </div>
+          <div id="contener_boutonConnect">
+            <button id='boutonConnect' onClick={() => signIn()}>Sign in</button>
+          </div>
+
           </div>
         </>
       )
@@ -107,20 +132,6 @@ export default function Page({list_group}) {
     
     
     
-export async function getServerSideProps(context) {
-
-  const session = await getServerSession(context.req, context.res, authOptions);
-
-  if (session == null) {
-    return { props: { list_group: null }}
-  }
-  const current_user = await prisma.user.findUnique({ 
-    where: { email: session.user.email }, 
-    include: { group: true }
-  });
-
-  return { props: { list_group: current_user.group }}
-}
 
 
 

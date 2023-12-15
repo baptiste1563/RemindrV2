@@ -11,8 +11,8 @@ export default async function get_group(req, res) {
     //test si un groupe existe déjà avec ce nom
     const group_exists = await prisma.group.findUnique({ where: { name: req.body.name } });
     
-    if(group_exists) 
-        return res.status(400).json(["Group already exists"]);
+    if(group_exists || req.body.name == "") 
+        return res.status(400).json(["Le groupe portant le même nom existe déjà ou le nom est vide"]);
     
     const group = await prisma.group.create({ data: {
             name: req.body.name,
@@ -20,5 +20,5 @@ export default async function get_group(req, res) {
             users:  { connect: { id: session.user.id } }
         }});
     
-    return res.status(200).json(["Add group Ok"]);
+    return res.status(200).json(["Groupe créé avec succès"]);
 }
