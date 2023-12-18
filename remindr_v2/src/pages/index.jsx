@@ -5,6 +5,7 @@ import { authOptions } from "./api/auth/[...nextauth]"
 const { PrismaClient } = require('@prisma/client')
 import { useState } from 'react';
 import { useRouter } from 'next/router';
+import { useEffect } from 'react';
 
 const prisma = new PrismaClient();
 
@@ -78,8 +79,8 @@ export default function Page({list_group}) {
                 <div id="group_create">
                   <h1>Créer un nouveau groupe</h1>
                   <form method="post">
-                    <input type="text" value={inputValueName} onChange={handleInputChangeName} placeholder="Nom du groupe" required/>
-                    <input type="text" value={inputValueDesc} onChange={handleInputChangeDesc} placeholder="Description" required/>
+                    <input type="text" value={inputValueName} onChange={handleInputChangeName} placeholder="Nom du groupe" />
+                    <input type="text" value={inputValueDesc} onChange={handleInputChangeDesc} placeholder="Description" />
                     <button onClick={handleButtonAdd_group}>+</button>
                   </form>
 
