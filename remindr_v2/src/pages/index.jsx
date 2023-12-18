@@ -77,7 +77,7 @@ export default function Page({list_group}) {
 
                 <div id="group_create">
                   <h1>Créer un nouveau groupe</h1>
-                  <form action="/api/group/create" method="post">
+                  <form method="post">
                     <input type="text" value={inputValueName} onChange={handleInputChangeName} placeholder="Nom du groupe" required/>
                     <input type="text" value={inputValueDesc} onChange={handleInputChangeDesc} placeholder="Description" required/>
                     <button onClick={handleButtonAdd_group}>+</button>
