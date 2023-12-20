@@ -22,20 +22,34 @@ export async function getServerSideProps(context) {
         users: true
       }
     });
+
+    const list_rappel = await prisma.rappel.findMany({
+      where: {
+        id_group: idGroup
+      }
+    })
     
-    return { props: { group: current_group }}
+    return { props: { group: current_group, rappels: JSON.parse(JSON.stringify(list_rappel))}}
   }
 
-export default function Page({group}) {
+export default function Page({group, rappels}) {
     const { data: session } = useSession();
     const router = useRouter()
 
+    //input value for add user in group
     const [inputValueEmail, setInputValueEmail] = useState("");
 
+    //input value for add rappel
+    const [inputValueName, setInputValueTitle] = useState('');
+    const [inputValueDate, setInputValueDate] = useState('');
+    const [inputValueDesc, setInputValueDesc] = useState('');
+    const [inputValueColor, setInputValueColor] = useState('');  
+
+    //handle set email
     const handleInputChangeEmail = (event) => {
         setInputValueEmail(event.target.value);
     }
-
+    //handle add user in group
     const handleButtonAdd_user = async () => {
 
         const res = await fetch('/api/group/add_user', {
@@ -44,6 +58,36 @@ export default function Page({group}) {
           body: JSON.stringify({ email : inputValueEmail, id: group.id}),
         });
         router.reload();
+    };
+
+    //handle set title rappel
+    const handleInputChangeName = (event) => {
+      setInputValueTitle(event.target.value);
+    };
+
+    //handle set date rappel
+    const handleInputChangeDate = (event) => {
+      setInputValueDate(event.target.valueAsDate);
+    };
+
+    //handle set desc rappel
+    const handleInputChangeDesc = (event) => {
+      setInputValueDesc(event.target.value);
+    };
+
+    //handle set color rappel
+    const handleInputChangeColor = (event) => {
+      setInputValueColor(event.target.value);
+    };
+
+    //handle add rappel
+    const handleButtonAdd_rappel = async () => {
+      const res = await fetch('/api/remind/add_remind', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({id: group.id, name: inputValueName, date: inputValueDate, desc: inputValueDesc, color: inputValueColor}),
+      });
+      router.reload();
     };
 
     if(session) {
@@ -74,6 +118,29 @@ export default function Page({group}) {
                     })
                 }
                 </ul>
+            </div>
+
+            <div id="rappel_list">
+              <h2>Rappels :</h2>
+                {
+                  rappels.map((item) => {
+                    return (
+                      <div class="group_card" style={{backgroundColor:item.color}}>
+                        <h1>{item.name}</h1>
+                        <p>{item.desc}</p>
+                        <p>{( new Date(item.date)).toLocaleDateString()}</p>
+                      </div>
+                  )})
+                }
+            </div>
+            
+            <div id='add_rappel'>
+              <h2>Ajouter un rappel :</h2>
+                <input type="text" value={inputValueName} onChange={handleInputChangeName} placeholder='Titre'/>
+                <input type="date" onChange={handleInputChangeDate} />
+                <input type="text" value={inputValueDesc} onChange={handleInputChangeDesc} placeholder='Description'/>
+                <input type="color" value={inputValueColor} onChange={handleInputChangeColor} />
+                <button onClick={handleButtonAdd_rappel}>+</button>
             </div>
 
             <div id="add_user">

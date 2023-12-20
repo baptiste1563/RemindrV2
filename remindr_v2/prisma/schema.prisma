@@ -68,6 +68,8 @@ model Rappel {
   id_group     String
   name         String? 
   desc         String?
+  date         DateTime?
+  color        String?
 
   group        Group @relation(fields: [id_group],references: [id])
 }
