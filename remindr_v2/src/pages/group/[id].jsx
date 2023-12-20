@@ -26,6 +26,9 @@ export async function getServerSideProps(context) {
     const list_rappel = await prisma.rappel.findMany({
       where: {
         id_group: idGroup
+      },
+      orderBy: {
+        date: 'asc'
       }
     })
     
@@ -93,63 +96,69 @@ export default function Page({group, rappels}) {
     if(session) {
         return (
             <>
+            <head>
+              <title>ReminDR - {group.name}</title>
+            </head>
+
 
             <header>
               <a href="../">ReminDR</a>
+              <h1>{group.name}</h1>
               <div id="connect">
                 <button onClick={() => signOut()}>Sign out</button>
                 <img id='pp' src={session.user.image} title={session.user.name}></img>
               </div>
             </header>
 
-            <div>
-                <h1>{group.name}</h1>
-                <h3>{group.desc}</h3>
-            </div>
+            <div id='content'>
+              <div>
+                  <h3>{group.desc}</h3>
+              </div>
 
-            <div id="user_list">
-                <h2>Utilisateurs :</h2>
-                <ul>
-                {
-                    group.users.map((user) => {
-                        return (
-                                <li>{user.name}</li>
-                        )
-                    })
-                }
-                </ul>
-            </div>
+              <div id="user_list">
+                  <h2>Utilisateurs :</h2>
+                  <ul>
+                  {
+                      group.users.map((user) => {
+                          return (
+                                  <li>{user.name}</li>
+                          )
+                      })
+                  }
+                  </ul>
+              </div>
 
-            <div id="rappel_list">
-              <h2>Rappels :</h2>
-                {
-                  rappels.map((item) => {
-                    return (
-                      <div class="group_card" style={{backgroundColor:item.color}}>
-                        <h1>{item.name}</h1>
-                        <p>{item.desc}</p>
-                        <p>{( new Date(item.date)).toLocaleDateString()}</p>
-                      </div>
-                  )})
-                }
-            </div>
-            
-            <div id='add_rappel'>
-              <h2>Ajouter un rappel :</h2>
-                <input type="text" value={inputValueName} onChange={handleInputChangeName} placeholder='Titre'/>
-                <input type="date" onChange={handleInputChangeDate} />
-                <input type="text" value={inputValueDesc} onChange={handleInputChangeDesc} placeholder='Description'/>
-                <input type="color" value={inputValueColor} onChange={handleInputChangeColor} />
-                <button onClick={handleButtonAdd_rappel}>+</button>
-            </div>
+              <div id="rappel_list">
+                <h2>Rappels :</h2>
+                  {
+                    rappels.map((item) => {
+                      return (
+                        <div class="group_card" style={{backgroundColor:item.color}}>
+                          <h1>{item.name}</h1>
+                          <p>{item.desc}</p>
+                          <p>{( new Date(item.date)).toLocaleDateString()}</p>
+                        </div>
+                    )})
+                  }
+              </div>
+              
+              <div id='add_rappel'>
+                <h2>Ajouter un rappel :</h2>
+                  <input type="text" value={inputValueName} onChange={handleInputChangeName} placeholder='Titre'/>
+                  <input type="date" onChange={handleInputChangeDate} />
+                  <input type="text" value={inputValueDesc} onChange={handleInputChangeDesc} placeholder='Description'/>
+                  <input type="color" value={inputValueColor} onChange={handleInputChangeColor} />
+                  <button onClick={handleButtonAdd_rappel}>+</button>
+              </div>
 
-            <div id="add_user">
-                <h2>Ajouter un utilisateur :</h2>
-                <form>
-                    <input type="email" value={inputValueEmail} onChange={handleInputChangeEmail} placeholder="email" />
-                    <button onClick={handleButtonAdd_user}>+</button>
-                </form>
-            </div>    
+              <div id="add_user">
+                  <h2>Ajouter un utilisateur :</h2>
+                  <form>
+                      <input type="email" value={inputValueEmail} onChange={handleInputChangeEmail} placeholder="email" />
+                      <button onClick={handleButtonAdd_user}>+</button>
+                  </form>
+              </div>   
+            </div> 
             </>
         )
     }

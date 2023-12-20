@@ -5,7 +5,7 @@ import { authOptions } from "./api/auth/[...nextauth]"
 const { PrismaClient } = require('@prisma/client')
 import { useState } from 'react';
 import { useRouter } from 'next/router';
-import { useEffect } from 'react';
+
 
 const prisma = new PrismaClient();
 
@@ -14,6 +14,9 @@ const prisma = new PrismaClient();
 export async function getServerSideProps(context) {
 
   const session = await getServerSession(context.req, context.res, authOptions);
+
+  let dateInFiveDays = new Date();
+  dateInFiveDays.setDate(dateInFiveDays.getDate() + 5); 
   
   if (session == null) {
     return { props: { list_group: null }}
@@ -22,12 +25,28 @@ export async function getServerSideProps(context) {
     where: { email: session.user.email }, 
     include: { group: true }
   });
+
+  //on prend les rappel qui sont fini dans 5 jours
+  const list_rappel = await prisma.rappel.findMany({
+    where: {
+      group: {
+        users: {
+          some: {
+            email: session.user.email
+          }
+        }
+      },
+      date: {
+        lte: dateInFiveDays
+      }
+    },
+    });
   
-  return { props: { list_group: current_user.group }}
+  return { props: { list_group: current_user.group, rappels: JSON.parse(JSON.stringify(list_rappel)) }}
 }
 
 
-export default function Page({list_group}) {
+export default function Page({list_group, rappels}) {
   const { data: session } = useSession()
   const router = useRouter();
 
@@ -61,7 +80,9 @@ export default function Page({list_group}) {
     console.log(list_group)
     return (
       <>
-
+            <head>
+              <title>ReminDR</title>
+            </head>
             <header>
               <a href="../">ReminDR</a>
               <div id="connect">
@@ -77,7 +98,7 @@ export default function Page({list_group}) {
 
 
                 <div id="group_create">
-                  <h1>Créer un nouveau groupe</h1>
+                  <h2>Créer un nouveau groupe</h2>
                   <form method="post">
                     <input type="text" value={inputValueName} onChange={handleInputChangeName} placeholder="Nom du groupe" />
                     <input type="text" value={inputValueDesc} onChange={handleInputChangeDesc} placeholder="Description" />
@@ -86,24 +107,43 @@ export default function Page({list_group}) {
 
                 </div>
 
-                <h1>Liste de vos groupes : </h1>
               </div>
 
+              <div id="tableau_de_bord">
 
-              <div id="group_list">
-              {
-                  list_group.map((item) => {
-                    return (
-                      <a href={"/group/" + item.id}>
-                        <div class="group_card">
-                          <h1>{item.name}</h1>
-                          <p>{item.desc}</p>
-                        </div>
-                      </a>
-                    )})
-              }
+                <div id="rappel_list">
+                  <h2>Rappel qui arrive a échéance</h2>
+                  {
+                    rappels.map((item) => {
+                      return (
+                        <a href={"/group/"+item.id_group}>
+                          <div class="group_card">
+                            <h1>{item.name}</h1>
+                            <p>{item.desc}</p>
+                            <p>{( new Date(item.date)).toLocaleDateString()}</p>
+                          </div>
+                        </a>
+                      )})
+                  }
+                </div>
+
+                <div id="group_list">
+                  <h2>Liste de vos groupes : </h2>
+                  {
+                      list_group.map((item) => {
+                        return (
+                          <a href={"/group/" + item.id}>
+                            <div class="group_card">
+                              <h1>{item.name}</h1>
+                              <p>{item.desc}</p>
+                            </div>
+                          </a>
+                        )})
+                  }
+                </div>
+
               </div>
-              
+
             </div>
           </>
         )
