@@ -108,4 +108,8 @@ header {
   a:hover {
     text-decoration: underline;
   }
+
+  #delete {
+    background-color: red;
+  }
   

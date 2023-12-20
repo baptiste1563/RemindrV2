@@ -116,7 +116,7 @@ export default function Page({group, rappels}) {
               </div>
 
               <div id="user_list">
-                  <h2>Utilisateurs :</h2>
+                  <h2>Utilisateurs de ce groupe :</h2>
                   <ul>
                   {
                       group.users.map((user) => {
@@ -133,11 +133,13 @@ export default function Page({group, rappels}) {
                   {
                     rappels.map((item) => {
                       return (
-                        <div class="group_card" style={{backgroundColor:item.color}}>
-                          <h1>{item.name}</h1>
-                          <p>{item.desc}</p>
-                          <p>{( new Date(item.date)).toLocaleDateString()}</p>
-                        </div>
+                        <a href={'../remind/' + item.id}>
+                          <div class="group_card" style={{backgroundColor:item.color}}>
+                            <h1>{item.name}</h1>
+                            <p>{item.desc}</p>
+                            <p>{( new Date(item.date)).toLocaleDateString()}</p>
+                          </div>
+                        </a>
                     )})
                   }
               </div>

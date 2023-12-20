@@ -6,11 +6,11 @@ import { DateTime } from "luxon"
 
 const prisma = new PrismaClient();
 
-export default async function add_remind(req, res) {
-        
+export default async function update_remind(req, res) {
     const session = await getServerSession(req,res, authOptions);
     
-    const idGroup = req.body.id;
+    const idGroup = req.body.id_group;
+    const idRemind = req.body.id;
 
     //On verifie que l'utilisateur connecté est dans le groupe
     const isInGroup = await prisma.user.findUnique({
@@ -21,16 +21,11 @@ export default async function add_remind(req, res) {
     if(!isInGroup)
         return res.status(401).json(["Vous n'êtes pas dans ce groupe"]);
 
-    //on crée le remind
-    const add_remind = await prisma.rappel.create({ 
-        data: {
-            name: req.body.name,
-            desc: req.body.desc,
-            date: DateTime.fromISO(req.body.date),
-            color: req.body.color,
-            group: { connect: { id: idGroup } }
-        },
+    //on supprime le remind
+    const delete_remind = await prisma.rappel.delete({ 
+        where: { id: idRemind },
     });
 
-    return res.status(200).json(["Remind ajouté avec succès"]);
+
+    return res.status(200).json(["Rappel supprimé avec succès"]);
 }
