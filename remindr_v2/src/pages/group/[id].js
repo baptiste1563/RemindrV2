@@ -39,17 +39,25 @@ export default function Page({group}) {
     const handleButtonAdd_user = async () => {
 
         const res = await fetch('/api/group/add_user', {
-          method: 'POST',
+          method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email : inputValueEmail}),
+          body: JSON.stringify({ email : inputValueEmail, id: group.id}),
         });
-    
         router.reload();
     };
 
     if(session) {
         return (
             <>
+
+            <header>
+              <a href="../">ReminDR</a>
+              <div id="connect">
+                <button onClick={() => signOut()}>Sign out</button>
+                <img id='pp' src={session.user.image} title={session.user.name}></img>
+              </div>
+            </header>
+
             <div>
                 <h1>{group.name}</h1>
                 <h3>{group.desc}</h3>
