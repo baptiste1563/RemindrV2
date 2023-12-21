@@ -10,21 +10,22 @@ import { useRouter } from 'next/router';
 const prisma = new PrismaClient();
 
 
-
+//on recupere la session et les groupes de l'utilisateur
 export async function getServerSideProps(context) {
 
-  const session = await getServerSession(context.req, context.res, authOptions);
+  const session = await getServerSession(context.req, context.res, authOptions); //on recupere la session
 
-  let dateInFiveDays = new Date();
-  dateInFiveDays.setDate(dateInFiveDays.getDate() + 5); 
+  let dateInFiveDays = new Date(); //on prend la date d'aujourd'hui
+  dateInFiveDays.setDate(dateInFiveDays.getDate() + 5); //on ajoute 5 jours
   
-  if (session == null) {
+  if (session == null) { 
     return { props: { list_group: null }}
-  }
+  }//si il n'y a pas de session on renvoie null
+
   const current_user = await prisma.user.findUnique({ 
     where: { email: session.user.email }, 
     include: { group: true }
-  });
+  });//on recupere l'utilisateur avec ses groupes
 
   //on prend les rappel qui sont fini dans 5 jours
   const list_rappel = await prisma.rappel.findMany({
@@ -42,42 +43,44 @@ export async function getServerSideProps(context) {
     },
     });
   
-  return { props: { list_group: current_user.group, rappels: JSON.parse(JSON.stringify(list_rappel)) }}
+  return { props: { list_group: current_user.group, rappels: JSON.parse(JSON.stringify(list_rappel)) }} //on renvoie les groupes de l'utilisateur
 }
 
 
 export default function Page({list_group, rappels}) {
-  const { data: session } = useSession()
-  const router = useRouter();
+  const { data: session } = useSession() //on recupere la session
+  const router = useRouter(); //on recupere le router
 
   //input value for add group
-  const [inputValueName, setInputValueName] = useState('');
+  const [inputValueName, setInputValueName] = useState(''); 
   const [inputValueDesc, setInputValueDesc] = useState('');
   
-
+  //handle set name group
   const handleInputChangeName = (event) => {
     setInputValueName(event.target.value);
   };
 
+  //handle set desc group
   const handleInputChangeDesc = (event) => {
     setInputValueDesc(event.target.value);
   };
 
+  //handle add group
   const handleButtonAdd_group = async () => {
 
     const res = await fetch('/api/group/add_group', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ name : inputValueName, desc : inputValueDesc}),
-    });
+    }); //on ajoute le groupe
 
-    router.reload();
+    router.reload(); //on recharge la page
   };
 
   
-  
+  //si il y a une session on affiche la page
   if (session) {
-    console.log(list_group)
+    
     return (
       <>
             <head>
@@ -127,6 +130,7 @@ export default function Page({list_group, rappels}) {
                   }
                 </div>
 
+
                 <div id="group_list">
                   <h2>Liste de vos groupes : </h2>
                   {
@@ -148,6 +152,7 @@ export default function Page({list_group, rappels}) {
           </>
         )
       }
+      //si il n'y a pas de session on affiche la page de connexion
       return (
         <>
           <header>
