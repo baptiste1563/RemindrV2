@@ -10,18 +10,19 @@ const prisma = new PrismaClient();
 
 export async function getServerSideProps(context) {
 
-    const session = await getServerSession(context.req, context.res, authOptions);
-    const idGroup = context.params.id;
+    const session = await getServerSession(context.req, context.res, authOptions); //on recupere la session
+    const idGroup = context.params.id; //on recupere l'id du groupe
     
     if (session == null) {
       return { props: { group: null }}
-    }
+    }//si il n'y a pas de session on renvoie null
+
     const current_group = await prisma.group.findUnique({ 
       where: { id: idGroup },
       include : {
         users: true
       }
-    });
+    }); //on recupere le groupe avec l'id
 
     const list_rappel = await prisma.rappel.findMany({
       where: {
@@ -30,14 +31,14 @@ export async function getServerSideProps(context) {
       orderBy: {
         date: 'asc'
       }
-    })
+    }) //on recupere les rappels du groupe
     
-    return { props: { group: current_group, rappels: JSON.parse(JSON.stringify(list_rappel))}}
+    return { props: { group: current_group, rappels: JSON.parse(JSON.stringify(list_rappel))}} //on renvoie le groupe
   }
 
 export default function Page({group, rappels}) {
-    const { data: session } = useSession();
-    const router = useRouter()
+    const { data: session } = useSession(); //on recupere la session
+    const router = useRouter() //on recupere le router
 
     //input value for add user in group
     const [inputValueEmail, setInputValueEmail] = useState("");
@@ -92,7 +93,8 @@ export default function Page({group, rappels}) {
       });
       router.reload();
     };
-
+    
+    //si il y a une session on affiche la page
     if(session) {
         return (
             <>
@@ -164,6 +166,7 @@ export default function Page({group, rappels}) {
             </>
         )
     }
+    //si il n'y a pas de session on affiche la page de connexion
     return (
         <>
           <header>

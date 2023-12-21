@@ -7,9 +7,11 @@ import { DateTime } from "luxon"
 const prisma = new PrismaClient();
 
 export default async function add_remind(req, res) {
-        
+    
+    //on recupere la session
     const session = await getServerSession(req,res, authOptions);
     
+    //on recupere l'id du groupe
     const idGroup = req.body.id;
 
     //On verifie que l'utilisateur connecté est dans le groupe
@@ -18,6 +20,7 @@ export default async function add_remind(req, res) {
         include: {group:{where:{id:idGroup}}}
     });
 
+    //si l'utilisateur n'est pas dans le groupe
     if(!isInGroup)
         return res.status(401).json(["Vous n'êtes pas dans ce groupe"]);
 

@@ -9,35 +9,27 @@ import { redirect } from 'next/dist/server/api-utils';
 
 const prisma = new PrismaClient();
 
-
-
 export async function getServerSideProps(context) {
-    const session = await getServerSession(context.req, context.res, authOptions);
-    const idRemind = context.params.id;
+    const session = await getServerSession(context.req, context.res, authOptions); //on recupere la session
+    const idRemind = context.params.id; //on recupere l'id du groupe
 
     if (session == null) {
       return { props: { group: null }}
-    }
+    }//si il n'y a pas de session on renvoie null
 
     const current_remind = await prisma.rappel.findUnique({ 
       where: { id: idRemind },
       include : {
         group: true
       }
-    });
+    }); //on recupere le groupe avec l'id
 
     const current_group = await prisma.group.findUnique({ 
       where: { id: current_remind.id_group },
-    });
+    }); //on recupere le groupe avec l'id
 
-    return { props: { group: current_group, remind: JSON.parse(JSON.stringify(current_remind))}}
+    return { props: { group: current_group, remind: JSON.parse(JSON.stringify(current_remind))}} //on renvoie le groupe
 }
-
-
-
-
-
-
 
 export default function Page({group, remind}) {
     const { data: session } = useSession()
@@ -69,7 +61,8 @@ export default function Page({group, remind}) {
       const handleInputChangeColor = (event) => {
         setInputValueColor(event.target.value);
       };
-  
+      
+      //handle update rappel
       const handleButtonUpdate_rappel = async () => {
         const res = await fetch('/api/remind/update_remind', {
             method: 'PUT',
@@ -79,6 +72,7 @@ export default function Page({group, remind}) {
         router.reload();
       };
 
+      //handle delete rappel
       const handleButtonDelete_rappel = async () => {
         const res = await fetch('/api/remind/delete_remind', {
             method: 'DELETE',
@@ -90,7 +84,8 @@ export default function Page({group, remind}) {
         router.push(urlGroup);
       };
 
-
+    
+    //si il y a une session on affiche la page
     if (session) {
         return (
             <>
@@ -135,6 +130,7 @@ export default function Page({group, remind}) {
             </>
         )
     }
+    //si il n'y a pas de session on affiche la page de connexion
     return (
         <>
           <header>
