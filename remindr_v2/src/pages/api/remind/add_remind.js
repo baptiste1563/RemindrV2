@@ -1,7 +1,7 @@
 const { PrismaClient } = require('@prisma/client')
 import { getServerSession } from "next-auth"
 import { authOptions } from "../auth/[...nextauth]"
-import { DateTime } from "luxon"
+import { DateTime } from "luxon";
 
 
 const prisma = new PrismaClient();
